@@ -1,0 +1,77 @@
+8-bit instructions
+-------------------
+
+LUI
+0000xxii
+Rx = imm
+lui $x, imm
+
+ORI
+0001xxii
+rx = rx or imm
+ori $x, imm
+
+ADDIU
+0010xxii
+Rx = Rx + imm
+addiu $x, imm
+
+MULTU
+0011xxyy
+$LO = $x * $y
+mult $x, $y
+
+MFHI
+010011xx
+Rx = $HI
+mfhi $x
+
+MFLO
+010111xx
+Rx = $LO
+mflo $x
+
+XOR
+0110xxyy
+Rx = Rx xor Ry
+xor $x, $y
+
+SRL
+0111xxii
+Rx = Rx >> imm
+srl $x, imm
+
+ADDU
+1000xxyy
+Rx = Rx + Ry
+addu $x, $y
+
+ANDI
+1001xxii
+Rx = Rx & imm
+andi $x, imm
+
+ST (Formerly SB)
+1010xxyy
+MEM[Ry] = Rx
+st $x, $y
+
+LD (formerly LBU)
+1011xxyy
+Rx = MEM[Ry]
+ld $x, $y
+
+BEZ (formerly BNE, now equal 0)
+1100iiii
+if R0 == 0, PC = PC + imm, else PC++
+bez imm
+
+SLT
+1101xxyy
+R0 = 1 if Rx < Ry, R0 = 0 otherwise
+slt $x, $y
+
+J
+1110iiii
+PC = PC + imm
+jmp imm
