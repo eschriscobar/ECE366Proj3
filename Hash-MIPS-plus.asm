@@ -1,4 +1,4 @@
-addi $2, 101
+init255
 addi $1, 1
 loop:
 func $1, $3, 0xFA19E366
