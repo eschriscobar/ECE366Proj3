@@ -1,6 +1,6 @@
 init255
 addi $1, 1
 loop:
-func $1, $3, 0xFA19E366
+func $1, $3, 0xFA
 addi $1, 1
-bne $1, $2, loop
+bne $1, $0, -3
