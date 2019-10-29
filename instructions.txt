@@ -74,4 +74,4 @@ slt $x, $y
 J
 1110iiii
 PC = PC + imm
-jmp imm
+jmp imm, jmp target
