@@ -1,294 +1,152 @@
-# Author: Trung Le, Chris Escobar, Daniel Serrano, Jacob Aguirre
+# Author(s): 
 # Supported instrs:
-# ADDI, ADD, LUI, SUB, BEQ, ORI, SW, BNE, SRL, SLL, LW, ANDI, SLTU, SLT, AND, SB, LB, LHU, LBU, MULTU, MFHI, MFLO, XOR, COMP (Special Instr.)
+# LUI, ORI, ADDIU, MULTU, MFHI, MFLO
 
-
+# register[4] = $LO
+# reg
 def sim(program):
     # Machine Code to Simulation
 
     finished = False        # Is the simulation finished?
     PC = 0                  # Program Counter
-    register = [0] * 32     # Let's initialize 32 empty registers
+    register = [0] * 7     # Let's initialize 32 empty registers
     mem = [0] * 12288       # Let's initialize 0x3000 or 12288 spaces in memory.
 
     DIC = 0                 # Dynamic Instr Count
     while (not (finished)):
 
-        if PC == len(program) - 4:
+        if PC == len(program) - 1:
             finished = True
-            register[26] = PC + 4       # accounting for first/last instruction
+            register[26] = PC + 1       # which register will be PC ? 
 
         fetch = program[PC]
         DIC += 1
 
-        # ADDI (I) - Sim
-        if fetch[0:6] == '001000': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-
-            register[rt] = register[rs] + imm
-
-        # ADD (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[21:32] == '00000100000': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-
-            register[rd] = register[rs] + register[rt]
-
         # LUI (I) - Sim
-        elif fetch[0:6] == '001111':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = int(fetch[16:], 2)
+        if fetch[0:4] == '0000': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            imm = int(fetch[6:], 2)
+            #imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
 
-            register[rt] = imm << 16
-
-        # SUB (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[21:32] == '00000100010': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-
-            register[rd] = register[rs] - register[rt]
-
-        # BEQ (I) - Sim
-        elif fetch[0:6] == '000100':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-
-            # Compare the registers and decide if jumping or not
-            if register[rs] == register[rt]:
-                PC += imm * 4
-                if (imm < 0):
-                    finished = False
+            register[rx] = imm
 
         # ORI (I) - Sim
-        elif fetch[0:6] == '001101':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = int(fetch[16:], 2)
+        elif fetch[0:4] == '0001': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            imm = int(fetch[6:], 2)
 
-            register[rt] = int(register[rs]) | imm
+            register[rx] = register[rx] | imm
 
-        # SW (I) - Sim
-        elif fetch[0:6] == '101011': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-            imm = imm + register[rs]
+        # ADDIU (I) - Sim
+        elif fetch[0:4] == '0010': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            imm = int(fetch[6:], 2)
 
-            mem[imm] = register[rt]
+            register[rx] = register[rx] + imm
 
-        # BNE (I) - Sim
-        elif fetch[0:6] == '000101':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-            
-            # Compare the registers and decide if jumping or not
-            if register[rs] != register[rt]:
-                PC += imm * 4
+        # MULTU (R) - Sim
+        elif fetch[0:4] == '0011': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            ry = int(fetch[6:], 2)
+
+            register[4] = register[rx] * register[ry]
+
+        # MFHI (?) - Sim
+        elif fetch[0:6] == '010011': 
+            PC += 1
+            rx = int(fetch[6:], 2)
+
+            register[rx] = register[5] # $HI
+
+        # ORI (R) - Sim
+        elif fetch[0:6] == '010111': 
+            PC += 1
+            rx = int(fetch[6:], 2)
+
+            register[rx] = register[4] # $LO
+
+        # XOR (R) - Sim
+        elif fetch[0:4] == '0110': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            ry = int(fetch[6:], 2)
+
+            register[rx] = register[rx] ^ register[ry]
+
+        # SRL (I) - Sim
+        elif fetch[0:4] == '0111': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            imm = int(fetch[6:], 2)
+
+            register[rx] = register[rx] >> imm
+
+        # ADDU (R) - Sim
+        elif fetch[0:4] == '0110': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            ry = int(fetch[6:], 2)
+
+            register[rx] = register[rx] + register[ry]
+
+        # ANDI (R) - Sim
+        elif fetch[0:4] == '1001': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            imm = int(fetch[6:], 2)
+
+            register[rx] = register[rx] & imm
+
+        # ST (R) - Sim
+        elif fetch[0:4] == '1010': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            ry = int(fetch[6:], 2)
+
+            mem[ry] = register[rx]
+
+        # LD (R) - Sim
+        elif fetch[0:4] == '1011': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            ry = int(fetch[6:], 2)
+
+            register[rx] = mem[ry]
+
+        # BEZ (?) - Sim
+        elif fetch[0:4] == '1100': 
+            PC += 1
+            imm = int(fetch[4:], 2)
+
+            if register[0] == 0:
+                PC += imm
                 if (imm < 0):
                     finished = False
 
-        # SRL (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[26:32] == '000010': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-            sh = int(fetch[21:26], 2)
-
-            register[rd] = int(register[rt] / 2 ** sh)
-            
-        # SLL (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[26:32] == '000000': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-            sh = int(fetch[21:26], 2)
-            
-            temp = int(register[rt] * (2 ** sh))
-
-            if (temp > 4294967295):
-                temp = hex(temp)                # with multiple conversions
-                tempLen = len(temp)             # we make sure the hex num
-                bitsWant = tempLen - 8          # only has 8 digits with 
-                tt = temp[bitsWant:tempLen]     # this "function" if it
-                i = int(tt, 16)                 # overflows past 8 digits
-
-                register[rd] = i
-            else:                               
-                register[rd] = temp
-
-        # LW (I) - Sim
-        elif fetch[0:6] == '100011': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-
-            register[rt] = mem[register[rs] + imm]
-
-        # ANDI (I) - Sim
-        elif fetch[0:6] == '001100':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-
-            register[rt] = int(register[rs]) & imm
-
-        # SLTU (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[26:32] == '101011': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-
-            if register[rs] < register[rt]:
-                register[rd] = 1
-            else:
-                register[rd] = 0
-
         # SLT (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[26:32] == '101010':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
+        elif fetch[0:4] == '1101': 
+            PC += 1
+            rx = int(fetch[4:6], 2)
+            ry = int(fetch[6:], 2)
 
-            if register[rs] < register[rt]:
-                register[rd] = 1
+            if register[rx] < register[ry]:
+                register[0] = 1
             else:
-                register[rd] = 0
+                register[0] = 0
 
-        # AND (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[26:32] == '100100':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
+        # J (J) - Sim
+        elif fetch[0:4] == '1110': 
+            imm = int(fetch[4:], 2)
 
-            register[rd] = register[rs] & register[rd]
+            PC += (imm + 1)
         
-        # SB (I) - Sim
-        elif fetch[0:6] == '101000':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-            imm = imm + register[rs]
-
-            mem[imm] = register[rt]
-
-        # LB (I) - Sim
-        elif fetch[0:6] == '100000':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = -(65536 - int(fetch[16:], 2)) if fetch[16] == '1' else int(fetch[16:], 2)
-            imm = imm + register[rs]
-
-            register[rt] = mem[imm]
-
-        # LHU (I) - Sim
-        elif fetch[0:6] == '100101': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = int(fetch[16:], 2)
-            imm = imm + register[rs]
-            
-            register[rt] = (mem[imm]) & 65535
-            
-        # LBU (I) - Sim
-        elif fetch[0:6] == '100100':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            imm = int(fetch[16:], 2)
-            imm = imm + register[rs]
-           
-            register[rt] = (mem[imm]) & 255
-            
-        # MULTU (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[21:32] == '00000011001': 
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-
-            tempVar = register[rs] * register[rt]
-            tempLo = format(tempVar, '064b')
-            tempLo = tempVar & 0x00000000FFFFFFFF
-            tempHi = tempVar >> 32
-
-            register[24] = int(tempLo)
-            register[25] = int(tempHi)
-
-        # MFHI (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[21:32] == '00000010000':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-
-            register[rd] = register[25]  # register 2 saved for hi
-            
-        # MFLO (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[21:32] == '00000010010':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-
-            register[rd] = register[24]  # register 1 saved for lo
-
-        # XOR (R) - Sim
-        elif fetch[0:6] == '000000' and fetch[21:32] == '00000100110':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-            rd = int(fetch[16:21], 2)
-
-            register[rd] = register[rs] ^ register[rt]  # ^ is XOR in python
-
-        # COMP (I) - Sim
-        elif fetch[0:6] == '011011':
-            PC += 4
-            rs = int(fetch[6:11], 2)
-            rt = int(fetch[11:16], 2)
-
-            # if rs has 5 ones in a row then rt equals 1
-            # else rt equal 0
-
-            if (register[rs] & 248) == 248:
-                register[rt] = 1
-            elif (register[rs] & 124) == 124:
-                register[rt] = 1
-            elif (register[rs] & 62) == 62:
-                register[rt] = 1
-            elif (register[rs] & 31) == 31:
-                register[rt] = 1
-            else:
-                register[rt] = 0
-
         else:
             # This is not implemented on purpose
-            PC += 4
+            PC += 1
             print('Not implemented')
 
     # Finished simulations. Let's print out some stats
