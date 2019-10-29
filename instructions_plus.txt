@@ -1,0 +1,14 @@
+8-bit instructions
+-------------------
+
+ADDI
+00xxiiii
+Rx = Rx + imm
+
+FUNC
+01xxyyzz
+Rx = hash(Ry, imm)
+
+BNE
+10xxyyii
+if Rx != Ry, PC = imm+4

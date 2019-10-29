@@ -1,6 +1,6 @@
-lui $8, 0xFA19
-ori $8, $8, 0xE366
-addiu $9, $0, 1
+lui $1, 0xFA19
+ori $1, $1, 0xE366
+addiu $2, $0, 1
 addiu $11, $0, 0x65
 addiu $15, $0, 0x2020
 addiu $16, $0, 100
@@ -9,27 +9,27 @@ addiu $18, $0, 0x21e0
 
 hash:
 
-multu $9, $8
+multu $2, $1
+mfhi $12
+mflo $13
+xor $2, $12, $13
+
+multu $10, $1
 mfhi $12
 mflo $13
 xor $10, $12, $13
 
-multu $10, $8
+multu $10, $1
 mfhi $12
 mflo $13
 xor $10, $12, $13
 
-multu $10, $8
+multu $10, $1
 mfhi $12
 mflo $13
 xor $10, $12, $13
 
-multu $10, $8
-mfhi $12
-mflo $13
-xor $10, $12, $13
-
-multu $10, $8
+multu $10, $1
 mfhi $12
 mflo $13
 xor $10, $12, $13
