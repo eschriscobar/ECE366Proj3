@@ -1,4 +1,20 @@
-8-bit instructions
+8-bit instructions:
+
+ADDIU Y
+ADDU Y
+ANDI Y
+LUI Y
+ORI Y
+MULTU Y
+MFHI Y
+MFLO Y
+XOR Y
+SRL Y
+ST
+LD 
+BEZ 
+SLT 
+JMP
 
 --------------------------------------
 
@@ -142,30 +158,33 @@ imm = [6:]
 ST (Formerly SB) [R]
 
 1010xxyy
-MEM[Ry] = Rx
+
+mem[ry] = rx
 st $x, $y
 
 op = [0:4]
-Rx = [4:6]
-Ry = [6:]
+rx = [4:6]
+ry = [6:]
 
 -------------------------------------
 
 LD (formerly LBU) [R]
 
 1011xxyy
-Rx = MEM[Ry]
+
+rx = mem[ry]
 ld $x, $y
 
 op = [0:4]
-Rx = [4:6]
-Ry = [6:]
+rx = [4:6]
+ry = [6:]
 
 -------------------------------------
 
 BEZ (formerly BNE, now equal 0) [?]
 
 1100iiii
+
 if R0 == 0, PC = PC + imm, else PC++
 bez imm
 
@@ -186,7 +205,7 @@ Ry = [6:]
 
 --------------------------------------
 
-J [?]
+JMP [?]
 
 1110iiii
 PC = PC + imm

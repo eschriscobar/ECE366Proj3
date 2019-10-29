@@ -1,15 +1,17 @@
 # Author(s): 
 # Supported instrs:
-# LUI, ORI, ADDIU, MULTU, MFHI, MFLO
+# LUI, ORI, ADDIU, MULTU, MFHI, MFLO, XOR, SRL, ADDU, ANDI, ST, LD, BEZ, SLT, JMP
 
 # register[4] = $LO
-# reg
+# register[5] = $HI
+# register[6] = PC
+
 def sim(program):
     # Machine Code to Simulation
 
     finished = False        # Is the simulation finished?
     PC = 0                  # Program Counter
-    register = [0] * 7     # Let's initialize 32 empty registers
+    register = [0] * 11     # Let's initialize 32 empty registers
     mem = [0] * 12288       # Let's initialize 0x3000 or 12288 spaces in memory.
 
     DIC = 0                 # Dynamic Instr Count
@@ -17,7 +19,7 @@ def sim(program):
 
         if PC == len(program) - 1:
             finished = True
-            register[26] = PC + 1       # which register will be PC ? 
+            register[6] = PC + 1       # which register will be PC ? 
 
         fetch = program[PC]
         DIC += 1
@@ -156,21 +158,13 @@ def sim(program):
 
     print('Dynamic Instr Count: ', DIC)
 
-    print('                      _______________________________________________________________________________________')
-    print('Registers $0 - $7:    | {}[$0] | {}[$1] | {}[$2] | {}[$3] | {}[$4] | {}[$5] | {}[$6] | {}[$7] |'.format(register[0], register[1], register[2], register[3], register[4], register[5], register[6], register[7]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
+    print('                      ____________________________________________')
+    print('Registers $0 - $7:    | {}[$0] | {}[$1] | {}[$2] | {}[$3] |'.format(register[0], register[1], register[2], register[3]))
+    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
 
-    print('                      _______________________________________________________________________________________')
-    print('Registers $8 - $15:   | {}[$8] | {}[$9] | {}[$10] | {}[$11] | {}[$12] | {}[$13] | {}[$14] | {}[$15] |'.format(register[8], register[9], register[10], register[11], register[12], register[13], register[14], register[15]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
-
-    print('                      _______________________________________________________________________________________')
-    print('Registers $16 - $23:  | {}[$16] | {}[$17] | {}[$18] | {}[$19] | {}[$20] | {}[$21] | {}[$22] | {}[$23] |'.format(register[16], register[17], register[18], register[19], register[20], register[21], register[22],register[23]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
-
-    print('                      ____________________________________________________')
-    print('Registers lo, hi, PC: | {}[lo] | {}[$hi] | {}[$pc] |'.format(register[24], register[25], register[26]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
+    print('                      ____________________________________')
+    print('Registers lo, hi, PC: | {}[lo] | {}[$hi] | {}[$pc] |'.format(register[4], register[5], register[6]))
+    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
 
     print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     print('')
@@ -241,140 +235,70 @@ def main():
         line = line.replace(" ", "")
         line = line.replace("zero", "0")  # assembly can also use both $zero and $0
 
-        # = = = = ADDIU = = = = = = = = (I)
+        # = = = = ADDIU = = = = = = = = (I) Y
         if (line[0:5] == "addiu"):
             line = line.replace("addiu", "")  # delete the addiu from the string.
             line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
             
-            rt = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
-            rs = format(int(line[1]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
-            imm = format(int(line[2]), '016b') if (int(line[2]) > 0) else format(65536 + int(line[2]), '016b')
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
+            imm = format(int(line[1]), '02b')
             
-            f.write(str('001001') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('0010') + str(rx) + str(imm) + '\n')
             currentline += 1
 
-        # = = = = ADDI = = = = = = = = (I)
-        elif (line[0:4] == "addi"):
-            line = line.replace("addi", "")
-            line = line.split(",")
-            
-            imm = format(int(line[2]), '016b') if (int(line[2]) >= 0) else format(65536 + int(line[2]), '016b')
-            rs = format(int(line[1]), '05b')
-            rt = format(int(line[0]), '05b')
-            
-            f.write(str('001000') + str(rs) + str(rt) + str(imm) + '\n')
-            currentline += 1
-
-        # = = = = ADD = = = = = = (R)
+        # = = = = ADDU = = = = = = (R) Y
         elif (line[0:3] == "add"):
             line = line.replace("add", "")
             line = line.split(",")
             
-            rd = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rs = format(int(line[1]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rt = format(int(line[2]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
+            ry = format(int(line[1]), '02b')
             
-            f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100000') + '\n')
+            f.write(str('1000') + str(rx) + str(ry) + '\n')
             currentline += 1
 
-        # = = = = SUB = = = = = = = = (R)
-        elif (line[0:3] == "sub"):
-            line = line.replace("sub", "")
-            line = line.split(",")
+        # = = = = ANDI = = = = = = = = = (I) Y
+        elif (line[0:4] == "andi"):
+            line = line.replace("andi", "")
+            line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
             
-            rd = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rs = format(int(line[1]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rt = format(int(line[2]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
+            imm = format(int(line[1]), '02b')
             
-            f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000100010') + '\n')
+            f.write(str('1001') + str(rx) + str(imm) + '\n')
             currentline += 1
 
-        # = = = = MULTU = = = = = = = = (R)
+        # = = = = MULTU = = = = = = = = (R) Y
         elif (line[0:5] == "multu"):
             line = line.replace("multu", "")
             line = line.split(",")
             
-            rs = format(int(line[0]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
-            rt = format(int(line[1]), '05b')  # make element 2 in the set, 'line' an int of 5 bits. (rt)
+            rx = format(int(line[0]), '02b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
+            ry = format(int(line[1]), '02b')  # make element 2 in the set, 'line' an int of 5 bits. (rt)
             
-            f.write(str('000000') + str(rs) + str(rt) + str('00000') + str('00000') + str('011001') + '\n')
+            f.write(str('0011') + str(rx) + str(ry) + '\n')
             currentline += 1
 
-        # = = = = MULT = = = = = = = = (R)
-        elif (line[0:4] == "mult"):
-            line = line.replace("mult", "")
-            line = line.split(",")
-            
-            rs = format(int(line[0]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
-            rt = format(int(line[1]), '05b')  # make element 2 in the set, 'line' an int of 5 bits. (rt)
-            
-            f.write(str('000000') + str(rs) + str(rt) + str('00000') + str('00000') + str('011000') + '\n')
-            currentline += 1
-
-        # = = = = SRL = = = = = = = = (R)
+        # = = = = SRL = = = = = = = = (R) Y
         elif (line[0:3] == "srl"):
             line = line.replace("srl", "")
             line = line.split(",")
             
-            rd = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rt = format(int(line[1]), '05b')  # make element 2 in the set, 'line' an int of 5 bits. (rt)
-            sh = format(int(line[2]), '05b')  # make element 3 in the set, 'line' an int of 5 bits. (sh)
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
+            imm = format(int(line[1]), '02b')  # make element 2 in the set, 'line' an int of 5 bits. (rt)
             
-            f.write(str('000000') + str('00000') + str(rt) + str(rd) + str(sh) + str('000010') + '\n')
+            f.write(str('0111') + str(rx) + str(imm) + '\n')
             currentline += 1
 
-        # = = = = SLL = = = = = = = = (R)
-        elif (line[0:3] == "sll"):
-            line = line.replace("sll", "")
-            line = line.split(",")
-            
-            rd = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rt = format(int(line[1]), '05b')  # make element 2 in the set, 'line' an int of 5 bits. (rt)
-            sh = format(int(line[2]), '05b')  # make element 3 in the set, 'line' an int of 5 bits. (sh)
-            
-            f.write(str('000000') + str('00000') + str(rt) + str(rd) + str(sh) + str('000000') + '\n')
-            currentline += 1
-            # question about splitting in python for the paranthesees?
-
-        # = = = = LBU = = = = = = = = (I)
-        elif (line[0:3] == "lbu"):
-            line = line.replace(")", "")  # remove the ) paran entirely.
-            line = line.replace("(", ",")  # replace ( left paren with comma
-            line = line.replace("lbu", "")
-            line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
-            
-            rt = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
-            imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
-            rs = format(int(line[2]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
-            
-            f.write(str('100100') + str(rs) + str(rt) + str(imm) + '\n')
-            currentline += 1
-
-        # = = = = LHU = = = = = = = = = (I)
-        elif (line[0:3] == "lhu"):
-            line = line.replace(")", "")  # remove the ) paran entirely.
-            line = line.replace("(", ",")  # replace ( left paren with comma
-            line = line.replace("lhu", "")
-            line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
-            
-            rt = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
-            imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
-            rs = format(int(line[2]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
-            
-            f.write(str('100101') + str(rs) + str(rt) + str(imm) + '\n')
-            currentline += 1
-
-        # = = = = LUI = = = = = = = = (I)
+        # = = = = LUI = = = = = = = = (I) Y
         elif (line[0:3] == "lui"):
-            line = line.replace(")", "")  # remove the ) paran entirely.
-            line = line.replace("(", ",")  # replace ( left paren with comma
             line = line.replace("lui", "")
             line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
             
-            rt = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
-            imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
+            imm = format(int(line[1]), '02b')
 
-            f.write(str('001111') + str('00000') + str(rt) + str(imm) + '\n')
+            f.write(str('0000') + str(rx) + str(imm) + '\n')
             currentline += 1
 
         # = = = = LB = = = = = = = = = (I)
@@ -391,18 +315,15 @@ def main():
             f.write(str('100000') + str(rs) + str(rt) + str(imm) + '\n')
             currentline += 1
 
-        # = = = = SB = = = = = = = = = (I)
-        elif (line[0:2] == "sb"):
-            line = line.replace(")", "")  # remove the ) paran entirely.
-            line = line.replace("(", ",")  # replace ( left paren with comma
+        # = = = = ST (SB) = = = = = = = = = (I)
+        elif (line[0:2] == "st"):
             line = line.replace("sb", "")
             line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
             
-            rt = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
-            imm = format(int(line[1]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
-            rs = format(int(line[2]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
+            ry = format(int(line[1]), '02b')
             
-            f.write(str('101000') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('1010') + str(rx) + str(ry) + '\n')
             currentline += 1
 
         # = = = = LW = = = = = = = = = (I)
@@ -433,29 +354,17 @@ def main():
             f.write(str('101011') + str(rs) + str(rt) + str(imm) + '\n')
             currentline += 1
 
-        # = = = = ORI = = = = = = = = = (I)
+        # = = = = ORI = = = = = = = = = (I) Y
         elif (line[0:3] == "ori"):
             line = line.replace("ori", "")
             line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
             
-            rt = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
-            imm = format(int(line[2]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
-            rs = format(int(line[1]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
+            imm = format(int(line[1]), '02b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
             
-            f.write(str('001101') + str(rs) + str(rt) + str(imm) + '\n')
+            f.write(str('0001') + str(rx) + str(imm) + '\n')
             currentline += 1
 
-        # = = = = ANDI = = = = = = = = = (I)
-        elif (line[0:4] == "andi"):
-            line = line.replace("andi", "")
-            line = line.split(",")  # split the 1 string 'line' into a string array of many strings, broken at the comma.
-            
-            rt = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rt)
-            imm = format(int(line[2]), '016b') if (int(line[1]) >= 0) else format(65536 + int(line[1]), '016b')
-            rs = format(int(line[1]), '05b')  # make element 1 in the set, 'line' an int of 5 bits. (rs)
-            
-            f.write(str('001100') + str(rs) + str(rt) + str(imm) + '\n')
-            currentline += 1
 
         # = = = = AND = = = = = = = = = (R)
         elif (line[0:4] == "and"):
@@ -469,36 +378,35 @@ def main():
             f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000') + str('100100') + '\n')
             currentline += 1
 
-        # = = = = MFHI = = = = = = = = (R)
+        # = = = = MFHI = = = = = = = = (R) Y
         elif (line[0:4] == "mfhi"):
             line = line.replace("mfhi", "")
             line = line.split(",")
             
-            rd = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
+            rx = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
             
-            f.write(str('000000') + str('00000') + str('00000') + str(rd) + str('00000') + str('010000') + '\n')
+            f.write(str('010011') + str(rx) + '\n')
             currentline += 1
 
-        # = = = = MFLO = = = = = = = = (R)
+        # = = = = MFLO = = = = = = = = (R) Y
         elif (line[0:4] == "mflo"):
             line = line.replace("mflo", "")
             line = line.split(",")
             
-            rd = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
+            rd = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
             
-            f.write(str('000000') + str('00000') + str('00000') + str(rd) + str('00000') + str('010010') + '\n')
+            f.write(str('010111') + str(rx) + '\n')
             currentline += 1
 
-        # = = = = XOR = = = = = = = = (R)
+        # = = = = XOR = = = = = = = = (R) Y
         elif (line[0:3] == "xor"):
             line = line.replace("xor", "")
             line = line.split(",")
             
-            rd = format(int(line[0]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rs = format(int(line[1]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
-            rt = format(int(line[2]), '05b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
+            rd = format(int(line[0]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
+            rs = format(int(line[1]), '02b')  # make element 0 in the set, 'line' an int of 5 bits. (rd)
             
-            f.write(str('000000') + str(rs) + str(rt) + str(rd) + str('00000') + str('100110') + '\n')
+            f.write(str('0110') + str(rx) + str(ry) + '\n')
             currentline += 1
 
         # = = = = BEQ = = = = = = = = = (I)
