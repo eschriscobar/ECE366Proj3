@@ -196,6 +196,7 @@ imm = [4:]
 SLT [R]
 
 1101xxyy
+
 R0 = 1 if Rx < Ry, R0 = 0 otherwise
 slt $x, $y
 
@@ -208,6 +209,7 @@ Ry = [6:]
 JMP [?]
 
 1110iiii
+
 PC = PC + imm
 jmp imm
 
