@@ -1,0 +1,32 @@
+8-bit instructions
+-------------------
+
+ADDI
+00xxiiii
+Rx = Rx + imm
+
+FUNC
+01xxyyii
+R3 = hash(Rx, Ry)
+handles HASH and PATTERN
+
+BNE
+10xxyyii
+if Rx != Ry, PC = imm+4
+
+INIT255
+11111111
+R0 = 0xFF aka 255
+
+
+
+
+IGNORE BELOW
+---------------
+LUIR0
+011iiii
+R0 = iiii0000
+
+ORIR0
+110iiii
+R0 = R0 || iiii
