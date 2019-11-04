@@ -1,198 +1,73 @@
-8-bit instructions
+--------------------------------------------
+		INSTRUCTIONS
 
---------------------------------------
+INSTR:
 
-I-Type:
-	op, Rx, imm
+instruction
 
-R-Type:
-	op, Rx, Ry
+functionality
 
-Only use 2's complement when imm is
-4 bits or greater
+encoding format
 
---------------------------------------
 
-LUI (I)
+--------------------------------------------
 
-0000xxii
+ADD:
 
-rx = imm
-lui $rx, imm
+add Rx, Ry
 
-op = [0:4]
-Rx = [4:6]
-imm = [6:]
+Rx = Rx + Ry; PC++
 
------------------------------------
+0100 xx yy
 
-ORI (I)
+--------------------------------------------
 
-0001xxii
-rx = rx | imm
-ori $x, imm
+ADDI:
 
-op = [0:4]
-rx = [4:6]
-imm = [6:]
+addi Rx, imm 
 
-----------------------------------
+Rx = Rx + imm
+Imm: [-8, 7]
 
-ADDIU (I)
+11 xx iiii
 
-0010xxii
+--------------------------------------------
 
-rx = rx + imm
-addiu $x, imm
+BNEZR2:
 
-op = [0:4]
-rx = [4:6]
-imm = [6:]
+bnezR2 imm
 
----------------------------------
-
-MULTU (R)
-
-0011xxyy
-
-$LO = $x * $y
-mult $x, $y
-
-op = [0:4]
-rx = [4:6]
-ry = [6:]
-
-------------------------------------
-
-MFHI(?)
-
-010011xx
-rx = $HI
-mfhi $x
-
-op = [0:6]
-rx= [6:]
-
-------------------------------------
-
-MFLO (?)
-
-010111xx
-
-rx = $LO
-mflo $x
-
-op = [0:6]
-rx = [6:]
-
--------------------------------------
-
-XOR (R)
-
-0110xxyy
-
-rx = rx ^ ry
-xor $x, $y
-
-op = [0:4]
-rx = [4:6]
-ry= [6:]
-
-------------------------------------
-
-SRL (I)
-
-0111xxii
-
-rx = rx >> imm
-srl $x, imm
-
-op = [0:4]
-rx = [4:6]
-imm = [6:]
-
--------------------------------------
-
-ADDU (R)
-
-1000xxyy
-
-rx = rx + ry
-addu $x, $y
-
-op = [0:4]
-rx = [4:6]
-ry = [6:]
-
--------------------------------------
-
-ANDI (I)
-
-1001xxii
-
-rx = rx & imm
-andi $x, imm
-
-op = [0:4]
-rx = [4:6]
-imm = [6:]
-
--------------------------------------
-
-ST (Formerly SB) [R]
-
-1010xxyy
-MEM[Ry] = Rx
-st $x, $y
-
-op = [0:4]
-Rx = [4:6]
-Ry = [6:]
-
--------------------------------------
-
-LD (formerly LBU) [R]
-
-1011xxyy
-Rx = MEM[Ry]
-ld $x, $y
-
-op = [0:4]
-Rx = [4:6]
-Ry = [6:]
-
--------------------------------------
-
-BEZ (formerly BNE, now equal 0) [?]
-
-1100iiii
-if R0 == 0, PC = PC + imm, else PC++
-bez imm
-
-op = [0:4]
-imm = [4:]
-
---------------------------------------
-
-SLT [R]
-
-1101xxyy
-R0 = 1 if Rx < Ry, R0 = 0 otherwise
-slt $x, $y
-
-op = [0:4]
-Rx = [4:6]
-Ry = [6:]
-
---------------------------------------
-
-J [?]
-
-1110iiii
+If R2 != 0, 
 PC = PC + imm
-jmp imm
+Else, PC++
+Imm: [-8, 7]
 
-op = [0:4]
-imm = [4:]
+1011 iiii
 
---------------------------------------
+--------------------------------------------
+
+LUIR1:
+
+luiR1 imm
+
+R1 = iiii0000
+0110 iiii
+
+--------------------------------------------
+
+ORIR1:
+
+oriR1 imm
+
+R1 = R1 | iiii
+0111 iiii
+
+--------------------------------------------
+
+FUNC:
+
+func Rx, Ry, Rz
+
+Rx = hash(Rx, Ry)
+00 xx yy zz
+
