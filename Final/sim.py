@@ -25,13 +25,11 @@ def sim(program):
 
         
         # FUNC - Sim
-        if fetch[0:2] == '00':
+        if fetch[0:2] == '00':              # hashes register[ry] & register[rz], stores result into register[rz] and mem[0x4 + (register[ry] - 1)]
             PC += 1
             rx = int(fetch[2:4], 2)
             ry = int(fetch[4:6], 2)
             rz = int(fetch[6:], 2)
-
-            #print("\n\nregister[", ry, "]: ", register[ry],  "| register[", rz, "]: ", register[rz], " | rx = ",  rx)
 
             hash(int(register[ry]), int(register[rz]), rx, mem, register)
 
@@ -44,10 +42,10 @@ def sim(program):
             register[rx] = register[rx] + register[ry]
 
         # SBNEZR2 - Sim
-        elif fetch[0:4] == '1011':
+        elif fetch[0:4] == '1011':              
             PC += 1
-            imm = -(16 - int(fetch[4:], 2)) if fetch[4] == '1' else int(fetch[4:], 2)
-            
+            imm = -(16 - int(fetch[4:], 2)) if fetch[4] == '1' else int(fetch[4:], 2)       # if $R2 != 0 then branch (PC + IMM) and subtract $R2 by 1, else PC + 1
+                                                                                    
             register[2] = register[2] - 1
 
             # Compare the registers and decide if jumping or not
@@ -57,18 +55,16 @@ def sim(program):
                     finished = False
 
         # LUIR1 - Sim
-        elif fetch[0:4] == '0110': 
-            PC += 1
+        elif fetch[0:4] == '0110':          # sets upper 4 bits of 8 bit number 
+            PC += 1                         # to specified imm from ASM
             imm = int(fetch[4:], 2)
 
             register[1] = imm << 4
 
-        # ORIR1 - Sim
-        elif fetch[0:4] == '0111':
-            PC += 1
+        # ORIR1 - Sim                       
+        elif fetch[0:4] == '0111':          # sets lower 4 bits of 8 bit number 
+            PC += 1                         # to specified imm from ASM
             imm = int(fetch[4:], 2)
-
-            #f.write("ORIR1\n")
 
             register[1] = int(register[1]) | imm
         
@@ -76,15 +72,13 @@ def sim(program):
             # This is not implemented on purpose
             PC += 1
             print('Not implemented')
-            #f.write("N I")
-
-        # print(type(fetch))
 
 
 
 
-    # Finished simulations. Let's print out some stats
-    print('\n                                               SIMULATION')
+
+    # Finished simulations, print out stats
+    print('                                               SIMULATION')
     print('\n                                                FINISHED')
     print('\n                                            smol_8oi (', hex(register[1]), ')')
 
@@ -96,13 +90,13 @@ def sim(program):
     print('PC:                   | {}[$pc] |'.format(register[4]))
     print('                      ‾‾‾‾‾‾‾‾‾‾')
 
-    print('                      ____________________________________')
+    print('                      ___________________________________')
     print('Registers $0 - $3:    | {}[$0] | {}[$1] | {}[$2] | {}[$3] |'.format(register[0], register[1], register[2], register[3]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
+    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
 
-    print('                      _____________________________________________________________________________________')
+    print('                      ______________________________________________________________________________________')
     print('Mem 0x0000 - 0x000F:  | [0x0000] {} {} {} {}  | [0x0004] {} {} {} {}  | [0x0008] {} {} {} {}  | [0x000C] {} {} {} {}  |'.format(mem[0], mem[1], mem[2], mem[3], mem[4], mem[5], mem[6], mem[7], mem[8], mem[9], mem[10], mem[11], mem[12], mem[13], mem[14], mem[15]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
+    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
     print('                      _________________________________________________________________________________')
     print('Mem 0x0010 - 0x001F:  | [0x0010] {} {} {} {}  | [0x0014] {} {} {} {}  | [0x0018] {} {} {} {}  | [0x001C] {} {} {} {}  |'.format(mem[16], mem[17], mem[18], mem[19], mem[20], mem[21], mem[22], mem[23], mem[24], mem[25], mem[26], mem[27], mem[28], mem[29], mem[30], mem[31]))
     print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
@@ -162,13 +156,10 @@ def hash(A, B, rx, mem, register):
     
     # MultFold1    
     C = A * B
-    # print("\nC: ", C, "\n")
-    
     C_hi = C >> 7
     C_hi = C_hi >> 1        # for some reason SLR using even numers didn't work
     C_low = C & 0x00FF
     C = C_hi ^ C_low
-    # print("C1: ", C, "\n")
     
     # MultFold2
     C = B*C
@@ -176,8 +167,6 @@ def hash(A, B, rx, mem, register):
     C_hi = C_hi >> 1
     C_low = C & 0x00FF
     C = C_hi^C_low
-    # print("C2: ", C, "\n")
-
 
     # MultFold3
     C = B*C
@@ -185,7 +174,6 @@ def hash(A, B, rx, mem, register):
     C_hi = C_hi >> 1
     C_low = C & 0x00FF
     C = C_hi^C_low
-    # print("C3: ", C, "\n")
 
     # MultFold4
     C = B*C
@@ -193,7 +181,6 @@ def hash(A, B, rx, mem, register):
     C_hi = C_hi >> 1
     C_low = C & 0x00FF
     C = C_hi^C_low
-    # print("C4: ", C, "\n")
 
     # MultFold5
     C = B*C
@@ -201,26 +188,20 @@ def hash(A, B, rx, mem, register):
     C_hi = C_hi >> 1
     C_low = C & 0x00FF
     C = C_hi^C_low
-    # print("C5: ", C, "\n")
 
-    # Fold 8->4 bits
+    # Fold 8 -> 4 bits
     C_hi = C >> 3
     C_hi = C_hi >> 1
     C_low = C & 0x0F
     C = C_hi^C_low
-    # print("C5 Fold 1: ", C, "\n")
 
-    # Fold 4->2 bits
+    # Fold 4 -> 2 bits
     C_hi = C >> 1
     C_hi = C_hi >> 1
     C_low = C & 0x3
     C = C_hi^C_low
 
-    # print("C5 Fold 2: ", C, " @ ", 0x4 + (A - 1), "\n\n")
-    # print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-
-    # Pattern matching
-
+    # Pattern matching and storing to corresponding register
     if(C == 0):                 
         mem[0] = mem[0] + 1
     elif(C == 1):
@@ -255,12 +236,11 @@ def saveJumpLabel(asm,labelIndex, labelName):
 
 
 def main():
-    # HW 4 (ASM to MC Instructions)
     labelIndex = []
     labelName = []
 
     f = open("mc.txt", "w+")
-    h = open("mc4.asm", "r")
+    h = open("test0xFA.asm", "r")
 
     asm = h.readlines()
     currentline = 0
@@ -276,6 +256,13 @@ def main():
         line = line.replace("$", "")
         line = line.replace(" ", "")
         line = line.replace("zero", "0")  # assembly can also use both $zero and $0
+
+        #
+        # This section of the program converts
+        # the ASM file into machine code
+        # which is the simulated above
+        # with the " XXXXX - Sim" statements
+        #
 
         # = = = = ADD = = = = = = 
         if (line[0:3] == "add"):
@@ -300,7 +287,7 @@ def main():
             f.write(str('00') + str(rx) + str(ry) + str(rz) + '\n')
             currentline += 1
 
-        # = = = = SBNEZR2 = = = = = = = = = 
+        # = = = = SBNEZR2 = = = = = = 
         elif (line[0:7] == "sbnezR2"):
             line = line.replace("sbnezR2", "")
             line = line.split(",")
