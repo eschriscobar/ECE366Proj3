@@ -74,25 +74,31 @@ def sim(program):
             print('Not implemented')
 
 
+# Finished simulations, print out stats
+#                           ___               __                  
+#                          /\_ \            /'_ `\          __    
+#   ____    ___ ___     ___\//\ \          /\ \L\ \    ___ /\_\   
+#  /',__\ /' __` __`\  / __`\\ \ \         \/_> _ <_  / __`\/\ \  
+# /\__, `\/\ \/\ \/\ \/\ \L\ \\_\ \_         /\ \L\ \/\ \L\ \ \ \ 
+# \/\____/\ \_\ \_\ \_\ \____//\____\        \ \____/\ \____/\ \_\
+#  \/___/  \/_/\/_/\/_/\/___/ \/____/  _______\/___/  \/___/  \/_/
+#                                     /\______\                   
+#                                     \/______/                   
+    print("                                                     ___                 __                   ")
+    print("                                                    /\_ \              /'_ `\         __     ")
+    print("                              ____    ___ ___     __\//\ \            /\ \L\ \   ___ /\_\    ")
+    print("                             /',__\ /' __` __`\  / __`\\ \ \           \/_> _ <_ / __`\/\ \   ")
+    print("                            /\__, `\/\ \/\ \/\ \/\ \L\ \\_\ \_          /\ \L\ \/\ \L\ \ \ \  ")
+    print("                            \/\____/\ \_\ \_\ \_\ \____//\____\        \ \____/\ \____/\ \_\ ")
+    print("                             \/___/  \/_/\/_/\/_/\/___/ \/____/  _______\/___/  \/___/  \/_/ ")
+    print("                                                                /\______\                    ")
+    print("                                                                \/______/                    ")
 
+    print('Dynamic Instr Count: ', DIC, '                                        ', hex(register[1]))
 
-
-    # Finished simulations, print out stats
-    print('                                               SIMULATION')
-    print('\n                                                FINISHED')
-    print('\n                                            smol_8oi (', hex(register[1]), ')')
-
-    print('')
-
-    print('Dynamic Instr Count: ', DIC)
-    
-    print('                      __________')
-    print('PC:                   | {}[$pc] |'.format(register[4]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾')
-
-    print('                      ___________________________________')
-    print('Registers $0 - $3:    | {}[$0] | {}[$1] | {}[$2] | {}[$3] |'.format(register[0], register[1], register[2], register[3]))
-    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
+    print('                      _____________________________________________')
+    print('Regs $0 - $3, PC:     | {}[$0] | {}[$1] | {}[$2] | {}[$3] | {}[$pc] |'.format(register[0], register[1], register[2], register[3], register[4]))
+    print('                      ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾')
 
     print('                      ______________________________________________________________________________________')
     print('Mem 0x0000 - 0x000F:  | [0x0000] {} {} {} {}  | [0x0004] {} {} {} {}  | [0x0008] {} {} {} {}  | [0x000C] {} {} {} {}  |'.format(mem[0], mem[1], mem[2], mem[3], mem[4], mem[5], mem[6], mem[7], mem[8], mem[9], mem[10], mem[11], mem[12], mem[13], mem[14], mem[15]))
@@ -240,7 +246,7 @@ def main():
     labelName = []
 
     f = open("mc.txt", "w+")
-    h = open("test0xFA.asm", "r")
+    h = open("test0xE3.asm", "r")
 
     asm = h.readlines()
     currentline = 0
